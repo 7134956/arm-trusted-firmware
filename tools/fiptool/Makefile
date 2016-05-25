@@ -32,15 +32,23 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
-PROJECT := fip_create${BIN_EXT}
-OBJECTS := fip_create.o
+PROJECT := fiptool${BIN_EXT}
+OBJECTS := fiptool.o tbbr_config.o
+V := 0
 COPIED_H_FILES := uuid.h firmware_image_package.h
 
+override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
 CFLAGS := -Wall -Werror -pedantic -std=c99
 ifeq (${DEBUG},1)
   CFLAGS += -g -O0 -DDEBUG
 else
   CFLAGS += -O2
+endif
+
+ifeq (${V},0)
+  Q := @
+else
+  Q :=
 endif
 
 # Only include from local directory (see comment below).
@@ -61,7 +69,7 @@ ${PROJECT}: ${OBJECTS} Makefile
 
 %.o: %.c %.h ${COPIED_H_FILES} Makefile
 	@echo "  CC      $<"
-	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}${CC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 #
 # Copy required library headers to a local directory so they can be included
@@ -80,4 +88,3 @@ clean:
 
 distclean: clean
 	$(call SHELL_DELETE_ALL, ${COPIED_H_FILES})
-
