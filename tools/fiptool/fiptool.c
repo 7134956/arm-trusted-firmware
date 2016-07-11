@@ -262,11 +262,12 @@ static int parse_fip(char *filename, fip_toc_header_t *toc_header_out)
 
 		image->toc_entry = get_entry_lookup_from_uuid(&toc_entry->uuid);
 		if (image->toc_entry == NULL)
-			log_errx("Image with unknown UUID in FIP %s", filename);
-
-		assert(image->toc_entry->image == NULL);
-		/* Link backpointer from lookup entry. */
-		image->toc_entry->image = image;
+			log_warnx("Image with unknown UUID in FIP %s", filename);
+		else {
+			assert(image->toc_entry->image == NULL);
+			/* Link backpointer from lookup entry. */
+			image->toc_entry->image = image;
+		}
 		add_image(image);
 
 		toc_entry++;
@@ -379,10 +380,13 @@ static int info_cmd(int argc, char *argv[])
 		else
 			printf("Unknown entry: ");
 		image_size = image->size;
-		printf("offset=0x%llX, size=0x%llX, cmdline=\"--%s\"\n",
+		printf("offset=0x%llX, size=0x%llX",
 		    (unsigned long long)image_offset,
-		    (unsigned long long)image_size,
-		    image->toc_entry->cmdline_name);
+		    (unsigned long long)image_size);
+		if (image->toc_entry)
+			printf(", cmdline=\"--%s\"",
+			    image->toc_entry->cmdline_name);
+		printf("\n");
 		image_offset += image_size;
 	}
 
