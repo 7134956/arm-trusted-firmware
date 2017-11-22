@@ -82,3 +82,4 @@ BL31_SOURCES		+=	plat/hisilicon/hikey/hisi_sip_svc.c			\
 				lib/pmf/pmf_smc.c
 endif
 
+FIP_ALIGN			:=	512
