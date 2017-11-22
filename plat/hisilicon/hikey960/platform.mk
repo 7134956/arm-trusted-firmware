@@ -63,3 +63,5 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				plat/hisilicon/hikey960/drivers/pwrc/hisi_pwrc.c \
 				plat/hisilicon/hikey960/drivers/ipc/hisi_ipc.c \
 				${HIKEY960_GIC_SOURCES}
+
+FIP_ALIGN			:=	512
