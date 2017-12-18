@@ -11,6 +11,14 @@
 #include <plat_macros.S>
 #include <cortex_a75.h>
 
+func cortex_a75_reset_func
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	msr	vbar_el3, x0
+#endif
+	ret
+endfunc cortex_a75_reset_func
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -47,5 +55,5 @@ func cortex_a75_cpu_reg_dump
 endfunc cortex_a75_cpu_reg_dump
 
 declare_cpu_ops cortex_a75, CORTEX_A75_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	cortex_a75_reset_func, \
 	cortex_a75_core_pwr_dwn
