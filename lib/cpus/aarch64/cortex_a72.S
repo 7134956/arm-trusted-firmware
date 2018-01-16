@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,6 +72,15 @@ func cortex_a72_disable_ext_debug
 	dsb	sy
 	ret
 endfunc cortex_a72_disable_ext_debug
+
+func check_errata_cve_2017_5715
+#if WORKAROUND_CVE_2017_5715
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2017_5715
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
@@ -200,6 +209,27 @@ func cortex_a72_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
+
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A72. Must follow AAPCS.
+ */
+func cortex_a72_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata WORKAROUND_CVE_2017_5715, cortex_a72, cve_2017_5715
+
+	ldp	x8, x30, [sp], #16
+	ret
+endfunc cortex_a72_errata_report
+#endif
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a72 specific
